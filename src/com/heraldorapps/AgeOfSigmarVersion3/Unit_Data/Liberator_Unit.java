@@ -2,6 +2,7 @@ package com.heraldorapps.AgeOfSigmarVersion3.Unit_Data;
 
 import com.heraldorapps.AgeOfSigmarVersion3.Die.Die;
 import com.heraldorapps.AgeOfSigmarVersion3.Interaction.Melee;
+import com.heraldorapps.AgeOfSigmarVersion3.Rules.Buffs;
 
 public class Liberator_Unit extends Battleline implements Melee {
     private final static String unitName = "LIBERATORS";
@@ -12,6 +13,9 @@ public class Liberator_Unit extends Battleline implements Melee {
             "STORMCAST ETERNAL",
             "REDEEMER",
             "LIBERATORS"};
+
+    private Buffs buffs = new Buffs();
+    private int points = 0;
 
     private final static int WOUNDS_PER_MODEL = 2;
     private final static int SAVE = 4;
@@ -43,54 +47,69 @@ public class Liberator_Unit extends Battleline implements Melee {
         int temp = modelsInUnit * attacks;
         int successes = 0;
 
+        //Determine if unit has a captain
         if (hasCaptain) {
             temp += 1;
         }
 
+        //Attack rolls
         Die[] attackDice = new Die[temp];
 
         for (Die die : attackDice) {
 
-            if (die.getFaceUp() >= getHit()) {
+            //Lay Low the Tyrants buff
+            if (unit.getWOUNDS_PER_MODEL() > 5) {
+                buffs.buffHit(1);
+            }
+
+            if (die.getFaceUp() + buffs.getHitBuff() >= getHit()) {
                 successes += 1;
             }
 
+            //Paired Weapons Rule
             if (weapons.equals(Weapons.Warhammers) || weapons.equals(Weapons.Warblades)) {
+
                 if (die.getFaceUp() == 6) {
                     die.roll();
-                    if (die.getFaceUp() >= hit) {
+
+                    if (die.getFaceUp() + buffs.getHitBuff() >= hit) {
                         successes += 1;
                     }
                 }
             }
         }
 
+        //Wound rolls
         Die[] woundDice = new Die[successes];
         successes = 0;
 
         for (Die die : woundDice) {
-            if (die.getFaceUp() >= getWound()) {
+            if (die.getFaceUp() + buffs.getWoundBuff() >= getWound()) {
                 successes += 1;
             }
         }
 
+        //Final result of combat
         return successes;
     }
 
     @Override
     public int save(int attacks, Unit unit) {
+
+        //Save Rolls
         Die[] saveDice = new Die[attacks];
         int fails = 0;
 
         for (Die die : saveDice) {
 
+            //Rule for Sigmarite Shield
             if ((weapons.equals(Weapons.WarbladeShield)) || (weapons.equals(Weapons.WarhammerShield))) {
                 if (die.getFaceUp() == 1) {
                     die.roll();
                 }
             }
 
-            if (die.getFaceUp() < getSAVE()) {
+            if (die.getFaceUp() - buffs.getSaveBuff() < getSAVE()) {
                 fails += 1;
             }
         }
@@ -147,6 +166,7 @@ public class Liberator_Unit extends Battleline implements Melee {
     }
 
     public Liberator_Unit() {
+        weapons = Weapons.Warhammers;
         range = weapons.getRange();
         attacks = weapons.getAttacks();
         hit = weapons.getHit();
@@ -183,12 +203,22 @@ public class Liberator_Unit extends Battleline implements Melee {
         return modelsInUnit;
     }
 
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
+
     public void setModelsInUnit(int modelsInUnit) {
         if (modelsInUnit < 5){
             System.out.println("Min Unit Size is 5: Unit size set to 5\n");
+            setPoints(100);
             this.modelsInUnit = 5;
         } else if (modelsInUnit > 30) {
             System.out.println("Max Unit Size Reached: Unit size set to 30\n");
+            setPoints(520);
             this.modelsInUnit = 30;
         } else {
             this.modelsInUnit = modelsInUnit;
@@ -306,5 +336,9 @@ public class Liberator_Unit extends Battleline implements Melee {
                 "\n4: Warblade with Shield" +
                 "\n5: Grandhammer" +
                 "\n6:Grandblade");
+    }
+
+    private void pointsCalculator(int modelsInUnit) {
+
     }
 }

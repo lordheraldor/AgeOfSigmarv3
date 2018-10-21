@@ -1,21 +1,23 @@
 package com.heraldorapps.AgeOfSigmarVersion3.Unit_Data;
 
+import com.heraldorapps.AgeOfSigmarVersion3.Rules.Buffs;
+
 public abstract class Unit {
 
     private boolean canFly;
     private boolean hasRangedWeapon;
 
-    protected int WOUNDS_PER_MODEL;
-    protected int SAVE;
-    protected int MOVE;
-    protected int BRAVERY;
+    private int WOUNDS_PER_MODEL;
+    private int SAVE;
+    private int MOVE;
+    private int BRAVERY;
 
-    protected int range;
-    protected int attacks;
-    protected int hit;
-    protected int wound;
-    protected int rend;
-    protected int damage;
+    private int range;
+    private int attacks;
+    private int hit;
+    private int wound;
+    private int rend;
+    private int damage;
 
     public int getWOUNDS_PER_MODEL() {
         return WOUNDS_PER_MODEL;
